@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { Recogito } from '@recogito/recogito-js';
 import '@recogito/recogito-js/dist/recogito.min.css';
-import AWS from 'aws-sdk';
+import AWS, { ComprehendMedical } from 'aws-sdk';
 import { useQuasar } from 'quasar';
 import { onMounted, ref } from 'vue';
 
@@ -47,7 +47,7 @@ const comprehendMedical = new AWS.ComprehendMedical(config);
 
 const text = ref<string>('');
 const codifiedText = ref<string>('');
-const detectedEnties = ref<string>('');
+const detectedEnties = ref<Array<string>>([]);
 const isLoading = ref<boolean>(false);
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -154,6 +154,9 @@ const onSubmit = async () => {
     //   motivation: 'linking',
     // });
 
+    codifiedText.value = text.value;
+    detectedEnties.value = [];
+
     const params = {
       Text: text.value,
     };
@@ -163,7 +166,9 @@ const onSubmit = async () => {
         onError(error);
       } else {
         console.log(data);
-        codifiedText.value = text.value;
+        awsMedicalEntitiesResponseToStringList(data).forEach((entity) => {
+          detectedEnties.value.push(entity);
+        });
       }
     });
 
@@ -182,6 +187,24 @@ const onSubmit = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const awsMedicalEntitiesResponseToStringList = (
+  response: ComprehendMedical.Types.DetectEntitiesResponse
+) => {
+  return (
+    response.Entities?.map((entity) => `${entity.Text} (${entity.Category})`) ??
+    []
+  );
+};
+
+const awsMedicalSnomedResponseToStringList = (
+  response: ComprehendMedical.Types.InferSNOMEDCTResponse
+) => {
+  return (
+    response.Entities?.map((entity) => `${entity.Text} (${entity.Category})`) ??
+    []
+  );
 };
 
 const onError = (error: any) => {
