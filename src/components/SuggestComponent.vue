@@ -1,7 +1,9 @@
 <template>
   <div class="q-gutter-xl container">
     <div>
-      <div class="label text-center">What symptoms are you experiencing?</div>
+      <div class="label text-center">
+        Please describe your symptom observation or medical history.
+      </div>
       <q-form @submit="onSubmit" class="form q-gutter-md">
         <q-input
           outlined
@@ -101,7 +103,7 @@ const onSubmit = async () => {
 
 <style>
 .container {
-  padding: 8px;
+  padding: 12px;
 }
 
 .form {
@@ -111,13 +113,14 @@ const onSubmit = async () => {
 }
 
 .label {
-  font-size: 1.2em;
+  font-size: 1.1em;
   margin-bottom: 10px;
 }
 
 .userInput {
+  align-self: stretch;
   textarea {
-    width: 300px;
+    max-width: 500px;
   }
 }
 
