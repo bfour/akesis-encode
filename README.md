@@ -1,6 +1,6 @@
 # Akesis Encode (akesis-encode)
 
-Dynamic health questionnaire generator
+Freetext SNOMED encoder.
 
 ## Install the dependencies
 
@@ -33,6 +33,8 @@ npm run format
 ```
 
 ### Build the app for production
+
+⚠️ There seems to be an issue with AWS which prevents building: https://dev.to/ilumin/vite-build-failed-on-project-with-aws-sdk-14dk
 
 ```bash
 quasar build
