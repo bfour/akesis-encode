@@ -49,24 +49,25 @@
 <script setup lang="ts">
 import { Recogito } from '@recogito/recogito-js';
 import '@recogito/recogito-js/dist/recogito.min.css';
-import AWS from 'aws-sdk';
+// import AWS from 'aws-sdk';
 import { useQuasar } from 'quasar';
 import { onMounted, ref } from 'vue';
 
 const quasar = useQuasar();
 
-var config = new AWS.Config({
-  accessKeyId: process.env.AWS_KEY ?? '',
-  secretAccessKey: process.env.AWS_SECRET ?? '',
-  region: process.env.AWS_REGION ?? '',
-});
-const comprehendMedical = new AWS.ComprehendMedical(config);
+// var config = new AWS.Config({
+//   accessKeyId: process.env.AWS_KEY ?? '',
+//   secretAccessKey: process.env.AWS_SECRET ?? '',
+//   region: process.env.AWS_REGION ?? '',
+// });
+// const comprehendMedical = new AWS.ComprehendMedical(config);
 
 const text = ref<string>('');
 const suggestions = ref<string[]>([]);
 const isLoading = ref<boolean>(false);
 const isMedicalSymptom = ref<boolean>(false);
 
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 let r: null | any = null;
 onMounted(() => {
   r = new Recogito({
@@ -82,6 +83,7 @@ onMounted(() => {
     ],
     relationVocabulary: ['isRelated', 'isPartOf', 'isSameAs '],
   });
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
   r.on('createAnnotation', (annotation: any) => {
     console.log('Annotation created:', annotation);
   });
@@ -91,9 +93,9 @@ onMounted(() => {
 const onSubmit = async () => {
   try {
     isLoading.value = true;
-    const params = {
-      Text: 'The patient was prescribed 100mg of Ibuprofen to be taken twice daily.',
-    };
+    // const params = {
+    //   Text: 'The patient was prescribed 100mg of Ibuprofen to be taken twice daily.',
+    // };
 
     r.loadAnnotations('annotations.w3c.json').then(() => console.log('loaded'));
 
