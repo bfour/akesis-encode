@@ -22,7 +22,9 @@
       </q-form>
     </div>
 
-    <pre id="my-content">My text to annotate.</pre>
+    <pre id="my-content">{{ text }}</pre>
+
+    <Annotator></Annotator>
 
     <div v-if="suggestions.length > 0">
       <div v-if="!isMedicalSymptom" class="label text-center suggestionHeading">
@@ -47,6 +49,7 @@
 </template>
 
 <script setup lang="ts">
+import Annotator from 'v-annotator';
 import { Recogito } from '@recogito/recogito-js';
 import '@recogito/recogito-js/dist/recogito.min.css';
 import AWS from 'aws-sdk';
@@ -67,8 +70,9 @@ const suggestions = ref<string[]>([]);
 const isLoading = ref<boolean>(false);
 const isMedicalSymptom = ref<boolean>(false);
 
+let r: null | any = null;
 onMounted(() => {
-  const r = new Recogito({
+  r = new Recogito({
     content: 'my-content',
     locale: 'auto',
     allowEmpty: true,
@@ -85,80 +89,6 @@ onMounted(() => {
     console.log('Annotation created:', annotation);
   });
   // r.setMode('RELATIONS');
-  r.addAnnotation({
-    type: 'Annotation',
-    body: [
-      {
-        type: 'TextualBody',
-        value: 'wte',
-        purpose: 'commenting',
-      },
-    ],
-    target: {
-      selector: [
-        {
-          type: 'TextQuoteSelector',
-          exact: 'home',
-        },
-        {
-          type: 'TextPositionSelector',
-          start: 1,
-          end: 3,
-        },
-      ],
-    },
-    '@context': 'http://www.w3.org/ns/anno.jsonld',
-    id: '#ce0ed291-766b-4763-8e91-90ce1d04e706',
-  });
-
-  r.addAnnotation({
-    type: 'Annotation',
-    body: [
-      {
-        type: 'TextualBody',
-        value: 'wte',
-        purpose: 'commenting',
-      },
-    ],
-    target: {
-      selector: [
-        {
-          type: 'TextQuoteSelector',
-          exact: 'home',
-        },
-        {
-          type: 'TextPositionSelector',
-          start: 6,
-          end: 14,
-        },
-      ],
-    },
-    '@context': 'http://www.w3.org/ns/anno.jsonld',
-    id: '#447d4bea-08dc-4bd0-ae51-31f5ed7a95a0',
-  });
-
-  r.setMode('RELATIONS');
-  r.addAnnotation({
-    '@context': 'http://www.w3.org/ns/anno.jsonld',
-    type: 'Annotation',
-    id: '#4de98f32-2b1b-4214-b1ed-3c2aefed43bb',
-    body: [
-      {
-        type: 'TextualBody',
-        value: 'test',
-        purpose: 'tagging',
-      },
-    ],
-    target: [
-      {
-        id: '#447d4bea-08dc-4bd0-ae51-31f5ed7a95a0',
-      },
-      {
-        id: '#ce0ed291-766b-4763-8e91-90ce1d04e706',
-      },
-    ],
-    motivation: 'linking',
-  });
 });
 
 const onSubmit = async () => {
@@ -168,13 +98,90 @@ const onSubmit = async () => {
       Text: 'The patient was prescribed 100mg of Ibuprofen to be taken twice daily.',
     };
 
-    comprehendMedical.detectEntities(params, (err, data) => {
-      if (err) {
-        console.error(err);
-      } else {
-        console.log(data);
-      }
-    });
+    r.loadAnnotations('annotations.w3c.json').then(() => console.log('loaded'));
+
+    // r.addAnnotation({
+    //   type: 'Annotation',
+    //   body: [
+    //     {
+    //       type: 'TextualBody',
+    //       value: 'wte',
+    //       purpose: 'commenting',
+    //     },
+    //   ],
+    //   target: {
+    //     selector: [
+    //       {
+    //         type: 'TextQuoteSelector',
+    //         exact: 'home',
+    //       },
+    //       {
+    //         type: 'TextPositionSelector',
+    //         start: 1,
+    //         end: 3,
+    //       },
+    //     ],
+    //   },
+    //   '@context': 'http://www.w3.org/ns/anno.jsonld',
+    //   id: '#xxxxxxxxce0ed291-766b-4763-8e91-90ce1d04e706',
+    // });
+
+    // r.addAnnotation({
+    //   type: 'Annotation',
+    //   body: [
+    //     {
+    //       type: 'TextualBody',
+    //       value: 'wte',
+    //       purpose: 'commenting',
+    //     },
+    //   ],
+    //   target: {
+    //     selector: [
+    //       {
+    //         type: 'TextQuoteSelector',
+    //         exact: 'home',
+    //       },
+    //       {
+    //         type: 'TextPositionSelector',
+    //         start: 6,
+    //         end: 14,
+    //       },
+    //     ],
+    //   },
+    //   '@context': 'http://www.w3.org/ns/anno.jsonld',
+    //   id: '#447d4bea-08dc-4bd0-ae51-31f5ed7a95a0',
+    // });
+
+    // r.setMode('RELATIONS');
+    // r.addAnnotation({
+    //   '@context': 'http://www.w3.org/ns/anno.jsonld',
+    //   type: 'Annotation',
+    //   id: '#4de98f32-2b1b-4214-b1ed-3c2aefed43bb',
+    //   body: [
+    //     {
+    //       type: 'TextualBody',
+    //       value: 'test',
+    //       purpose: 'tagging',
+    //     },
+    //   ],
+    //   target: [
+    //     {
+    //       id: '#447d4bea-08dc-4bd0-ae51-31f5ed7a95a0',
+    //     },
+    //     {
+    //       id: '#ce0ed291-766b-4763-8e91-90ce1d04e706',
+    //     },
+    //   ],
+    //   motivation: 'linking',
+    // });
+
+    // comprehendMedical.detectEntities(params, (err, data) => {
+    //   if (err) {
+    //     console.error(err);
+    //   } else {
+    //     console.log(data);
+    //   }
+    // });
   } catch (error) {
     console.error(error);
     quasar.notify({
