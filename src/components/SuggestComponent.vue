@@ -68,9 +68,96 @@ const isLoading = ref<boolean>(false);
 const isMedicalSymptom = ref<boolean>(false);
 
 onMounted(() => {
-  const r = new Recogito({ content: 'my-content' });
+  const r = new Recogito({
+    content: 'my-content',
+    locale: 'auto',
+    allowEmpty: true,
+    widgets: [
+      { widget: 'COMMENT' },
+      {
+        widget: 'TAG',
+        vocabulary: ['Place', 'Person', 'Event', 'Organization', 'Animal'],
+      },
+    ],
+    relationVocabulary: ['isRelated', 'isPartOf', 'isSameAs '],
+  });
   r.on('createAnnotation', (annotation: any) => {
     console.log('Annotation created:', annotation);
+  });
+  // r.setMode('RELATIONS');
+  r.addAnnotation({
+    type: 'Annotation',
+    body: [
+      {
+        type: 'TextualBody',
+        value: 'wte',
+        purpose: 'commenting',
+      },
+    ],
+    target: {
+      selector: [
+        {
+          type: 'TextQuoteSelector',
+          exact: 'home',
+        },
+        {
+          type: 'TextPositionSelector',
+          start: 1,
+          end: 3,
+        },
+      ],
+    },
+    '@context': 'http://www.w3.org/ns/anno.jsonld',
+    id: '#ce0ed291-766b-4763-8e91-90ce1d04e706',
+  });
+
+  r.addAnnotation({
+    type: 'Annotation',
+    body: [
+      {
+        type: 'TextualBody',
+        value: 'wte',
+        purpose: 'commenting',
+      },
+    ],
+    target: {
+      selector: [
+        {
+          type: 'TextQuoteSelector',
+          exact: 'home',
+        },
+        {
+          type: 'TextPositionSelector',
+          start: 6,
+          end: 14,
+        },
+      ],
+    },
+    '@context': 'http://www.w3.org/ns/anno.jsonld',
+    id: '#447d4bea-08dc-4bd0-ae51-31f5ed7a95a0',
+  });
+
+  r.setMode('RELATIONS');
+  r.addAnnotation({
+    '@context': 'http://www.w3.org/ns/anno.jsonld',
+    type: 'Annotation',
+    id: '#4de98f32-2b1b-4214-b1ed-3c2aefed43bb',
+    body: [
+      {
+        type: 'TextualBody',
+        value: 'test',
+        purpose: 'tagging',
+      },
+    ],
+    target: [
+      {
+        id: '#447d4bea-08dc-4bd0-ae51-31f5ed7a95a0',
+      },
+      {
+        id: '#ce0ed291-766b-4763-8e91-90ce1d04e706',
+      },
+    ],
+    motivation: 'linking',
   });
 });
 
