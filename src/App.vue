@@ -3,7 +3,8 @@
 </template>
 
 <script setup lang="ts">
+import './viteGlobalFix';
 defineOptions({
-  name: 'App'
+  name: 'App',
 });
 </script>
