@@ -182,6 +182,9 @@ const onSubmit = async () => {
         awsMedicalSnomedResponseToStringList(data).forEach((entity) => {
           detectedEnties.value.push(entity);
         });
+        awsMedicalSnomedResponseToAnnotations(data).forEach((annotation) => {
+          r.addAnnotation(annotation);
+        });
       }
     });
   } catch (error) {
@@ -190,6 +193,45 @@ const onSubmit = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const awsMedicalSnomedResponseToAnnotations = (
+  response: ComprehendMedical.Types.InferSNOMEDCTResponse
+) => {
+  return (
+    response.Entities?.map((entity) => {
+      const snomedString = entity.Attributes
+        ? entity.SNOMEDCTConcepts?.map(
+            (concept) => `${concept.Description} (${concept.Code})`
+          ).join('; ')
+        : '';
+      return {
+        type: 'Annotation',
+        body: [
+          {
+            type: 'TextualBody',
+            value: snomedString,
+            purpose: 'commenting',
+          },
+        ],
+        target: {
+          selector: [
+            {
+              type: 'TextQuoteSelector',
+              exact: entity.Text,
+            },
+            {
+              type: 'TextPositionSelector',
+              start: entity.BeginOffset,
+              end: entity.EndOffset,
+            },
+          ],
+        },
+        '@context': 'http://www.w3.org/ns/anno.jsonld',
+        id: `#${entity.Id}`,
+      };
+    }) ?? []
+  );
 };
 
 const awsMedicalSnomedResponseToStringList = (
