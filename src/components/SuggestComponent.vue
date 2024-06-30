@@ -13,59 +13,42 @@
           @keydown.enter.prevent="onSubmit"
           :disable="isLoading"
         />
-        <q-btn
-          label="Get suggestions"
-          type="submit"
-          rounded
-          :loading="isLoading"
-        />
+        <q-btn label="Codify" type="submit" rounded :loading="isLoading" />
       </q-form>
     </div>
 
-    <pre id="my-content">{{ text }}</pre>
-
-    <div v-if="suggestions.length > 0">
-      <div v-if="!isMedicalSymptom" class="label text-center suggestionHeading">
-        I cannot see symptoms in your description, but here are some suggestions
-        anyway:
-      </div>
-      <div v-else class="label text-center">
-        Suggested additional information:
-      </div>
-      <q-list class="suggestionList">
-        <q-item
-          v-for="suggestion in suggestions"
-          :key="suggestion"
-          clickable
-          v-ripple
-        >
-          <q-item-section> • {{ suggestion }}</q-item-section>
-        </q-item>
-      </q-list>
-    </div>
+    <q-card v-show="codifiedText.length > 0">
+      <q-expansion-item expand-separator label="Codified Text">
+        <q-card-section>
+          <pre id="my-content">{{ codifiedText }}</pre>
+        </q-card-section>
+      </q-expansion-item>
+      <q-expansion-item expand-separator label="Detected Entities">
+      </q-expansion-item>
+    </q-card>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Recogito } from '@recogito/recogito-js';
 import '@recogito/recogito-js/dist/recogito.min.css';
-// import AWS from 'aws-sdk';
+import AWS from 'aws-sdk';
 import { useQuasar } from 'quasar';
 import { onMounted, ref } from 'vue';
 
 const quasar = useQuasar();
 
-// var config = new AWS.Config({
-//   accessKeyId: process.env.AWS_KEY ?? '',
-//   secretAccessKey: process.env.AWS_SECRET ?? '',
-//   region: process.env.AWS_REGION ?? '',
-// });
-// const comprehendMedical = new AWS.ComprehendMedical(config);
+var config = new AWS.Config({
+  accessKeyId: process.env.AWS_KEY ?? '',
+  secretAccessKey: process.env.AWS_SECRET ?? '',
+  region: process.env.AWS_REGION ?? '',
+});
+const comprehendMedical = new AWS.ComprehendMedical(config);
 
 const text = ref<string>('');
-const suggestions = ref<string[]>([]);
+const codifiedText = ref<string>('');
+const detectedEnties = ref<string>('');
 const isLoading = ref<boolean>(false);
-const isMedicalSymptom = ref<boolean>(false);
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 let r: null | any = null;
@@ -93,11 +76,8 @@ onMounted(() => {
 const onSubmit = async () => {
   try {
     isLoading.value = true;
-    // const params = {
-    //   Text: 'The patient was prescribed 100mg of Ibuprofen to be taken twice daily.',
-    // };
 
-    r.loadAnnotations('annotations.w3c.json').then(() => console.log('loaded'));
+    // r.loadAnnotations('annotations.w3c.json').then(() => console.log('loaded'));
 
     // r.addAnnotation({
     //   type: 'Annotation',
@@ -174,34 +154,53 @@ const onSubmit = async () => {
     //   motivation: 'linking',
     // });
 
-    // comprehendMedical.detectEntities(params, (err, data) => {
-    //   if (err) {
-    //     console.error(err);
-    //   } else {
-    //     console.log(data);
-    //   }
-    // });
+    const params = {
+      Text: text.value,
+    };
+    comprehendMedical.detectEntities(params, (error, data) => {
+      if (error) {
+        console.error(error);
+        onError(error);
+      } else {
+        console.log(data);
+        codifiedText.value = text.value;
+      }
+    });
+
+    comprehendMedical.inferSNOMEDCT(params, (error, data) => {
+      if (error) {
+        console.error(error);
+        onError(error);
+      } else {
+        console.log(data);
+        codifiedText.value = text.value;
+      }
+    });
   } catch (error) {
     console.error(error);
-    quasar.notify({
-      message: 'An error occurred',
-      caption: `${error}`,
-      type: 'negative',
-      multiLine: true,
-      progress: true,
-      actions: [
-        {
-          label: 'Contact support',
-          color: 'white',
-          handler: () => {
-            window.location.href = 'mailto:bfourdev@gmail.com';
-          },
-        },
-      ],
-    });
+    onError(error);
   } finally {
     isLoading.value = false;
   }
+};
+
+const onError = (error: any) => {
+  quasar.notify({
+    message: 'An error occurred',
+    caption: `${error}`,
+    type: 'negative',
+    multiLine: true,
+    progress: true,
+    actions: [
+      {
+        label: 'Contact support',
+        color: 'white',
+        handler: () => {
+          window.location.href = 'mailto:bfourdev@gmail.com';
+        },
+      },
+    ],
+  });
 };
 </script>
 
