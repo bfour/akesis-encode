@@ -24,8 +24,6 @@
 
     <pre id="my-content">{{ text }}</pre>
 
-    <Annotator></Annotator>
-
     <div v-if="suggestions.length > 0">
       <div v-if="!isMedicalSymptom" class="label text-center suggestionHeading">
         I cannot see symptoms in your description, but here are some suggestions
@@ -49,7 +47,6 @@
 </template>
 
 <script setup lang="ts">
-import Annotator from 'v-annotator';
 import { Recogito } from '@recogito/recogito-js';
 import '@recogito/recogito-js/dist/recogito.min.css';
 import AWS from 'aws-sdk';
