@@ -22,6 +22,8 @@
       </q-form>
     </div>
 
+    <pre id="my-content">My text to annotate.</pre>
+
     <div v-if="suggestions.length > 0">
       <div v-if="!isMedicalSymptom" class="label text-center suggestionHeading">
         I cannot see symptoms in your description, but here are some suggestions
@@ -45,9 +47,11 @@
 </template>
 
 <script setup lang="ts">
-
+import { Recogito } from '@recogito/recogito-js';
+import '@recogito/recogito-js/dist/recogito.min.css';
 import AWS from 'aws-sdk';
 import { useQuasar } from 'quasar';
+import { onMounted, ref } from 'vue';
 
 const quasar = useQuasar();
 
@@ -62,6 +66,13 @@ const text = ref<string>('');
 const suggestions = ref<string[]>([]);
 const isLoading = ref<boolean>(false);
 const isMedicalSymptom = ref<boolean>(false);
+
+onMounted(() => {
+  const r = new Recogito({ content: 'my-content' });
+  r.on('createAnnotation', (annotation: any) => {
+    console.log('Annotation created:', annotation);
+  });
+});
 
 const onSubmit = async () => {
   try {
