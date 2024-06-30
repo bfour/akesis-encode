@@ -23,7 +23,19 @@
           <pre id="my-content">{{ codifiedText }}</pre>
         </q-card-section>
       </q-expansion-item>
-      <q-expansion-item expand-separator label="Detected Entities">
+      <q-expansion-item
+        expand-separator
+        :label="`Detected Entities (${detectedEnties.length})`"
+      >
+        <q-card-section>
+          <q-list>
+            <q-item v-for="entity in detectedEnties" :key="entity">
+              <q-item-section>
+                <q-item-label>{{ entity }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
       </q-expansion-item>
     </q-card>
   </div>
@@ -160,17 +172,6 @@ const onSubmit = async () => {
     const params = {
       Text: text.value,
     };
-    comprehendMedical.detectEntities(params, (error, data) => {
-      if (error) {
-        console.error(error);
-        onError(error);
-      } else {
-        console.log(data);
-        awsMedicalEntitiesResponseToStringList(data).forEach((entity) => {
-          detectedEnties.value.push(entity);
-        });
-      }
-    });
 
     comprehendMedical.inferSNOMEDCT(params, (error, data) => {
       if (error) {
@@ -178,7 +179,9 @@ const onSubmit = async () => {
         onError(error);
       } else {
         console.log(data);
-        codifiedText.value = text.value;
+        awsMedicalSnomedResponseToStringList(data).forEach((entity) => {
+          detectedEnties.value.push(entity);
+        });
       }
     });
   } catch (error) {
@@ -189,21 +192,18 @@ const onSubmit = async () => {
   }
 };
 
-const awsMedicalEntitiesResponseToStringList = (
-  response: ComprehendMedical.Types.DetectEntitiesResponse
-) => {
-  return (
-    response.Entities?.map((entity) => `${entity.Text} (${entity.Category})`) ??
-    []
-  );
-};
-
 const awsMedicalSnomedResponseToStringList = (
   response: ComprehendMedical.Types.InferSNOMEDCTResponse
 ) => {
   return (
-    response.Entities?.map((entity) => `${entity.Text} (${entity.Category})`) ??
-    []
+    response.Entities?.map((entity) => {
+      const snomedString = entity.Attributes
+        ? entity.SNOMEDCTConcepts?.map(
+            (concept) => `${concept.Description} (${concept.Code})`
+          ).join('; ')
+        : '';
+      return `${entity.Text} (${entity.Category}) (${snomedString})`;
+    }) ?? []
   );
 };
 
