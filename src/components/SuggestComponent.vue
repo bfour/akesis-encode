@@ -269,7 +269,7 @@ const onError = (error: any) => {
 };
 </script>
 
-<style>
+<style lang="scss">
 .container {
   padding: 12px;
 }
