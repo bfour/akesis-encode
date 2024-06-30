@@ -3,9 +3,9 @@ require('dotenv').config();
 // import { writeFile } from 'fs'; if you are using a typescript file
 
 const environmentFile = `
-  OPEN_AI_ORG_ID=${process.env.OPEN_AI_ORG_ID ?? ''}
-  OPEN_AI_PROJECT_ID=${process.env.OPEN_AI_PROJECT_ID ?? ''}
-  OPEN_AI_API_KEY=${process.env.OPEN_AI_API_KEY ?? ''}
+  AWS_KEY=${process.env.AWS_KEY ?? ''}
+  AWS_SECRET=${process.env.AWS_SECRET ?? ''}
+  AWS_REGION=${process.env.AWS_REGION ?? ''}
 `;
 
 // Generate environment.ts file
