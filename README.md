@@ -1,45 +1,87 @@
-# Akesis Encode (akesis-encode)
+# Medical Comprehend API
 
-Freetext SNOMED encoder.
+A REST API that uses AWS Medical Comprehend to analyze medical text and extract medical entities and protected health information (PHI).
 
-## Install the dependencies
+## Prerequisites
 
+- Node.js (v14 or higher)
+- AWS Account with Medical Comprehend access
+- AWS credentials (Access Key ID and Secret Access Key)
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file in the root directory with your AWS credentials:
+   ```
+   AWS_ACCESS_KEY_ID=your_access_key
+   AWS_SECRET_ACCESS_KEY=your_secret_key
+   AWS_REGION=your_region
+   PORT=3000
+   ```
+
+## Running the Application
+
+Development mode:
 ```bash
-yarn
-# or
-npm install
+npm run dev
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-
+Production mode:
 ```bash
-quasar dev
+npm run build
+npm start
 ```
 
-### Lint the files
+## API Endpoints
 
-```bash
-yarn lint
-# or
-npm run lint
+### POST /analyze
+Analyzes medical text and returns detected entities and PHI information.
+
+Request body:
+```json
+{
+  "text": "Patient John Doe presented with symptoms of diabetes and high blood pressure."
+}
 ```
 
-### Format the files
-
-```bash
-yarn format
-# or
-npm run format
+Response:
+```json
+{
+  "entities": [
+    {
+      "Id": 0,
+      "Type": "DIAGNOSIS",
+      "Text": "diabetes",
+      "Score": 0.99
+    },
+    {
+      "Id": 1,
+      "Type": "DIAGNOSIS",
+      "Text": "high blood pressure",
+      "Score": 0.98
+    }
+  ],
+  "phi": [
+    {
+      "Id": 0,
+      "Type": "NAME",
+      "Text": "John Doe",
+      "Score": 0.99
+    }
+  ]
+}
 ```
 
-### Build the app for production
+### GET /health
+Health check endpoint.
 
-⚠️ There seems to be an issue with AWS which prevents building: https://dev.to/ilumin/vite-build-failed-on-project-with-aws-sdk-14dk
-
-```bash
-quasar build
-```
-
-### Customize the configuration
-
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+Response:
+```json
+{
+  "status": "ok"
+}
+``` 
