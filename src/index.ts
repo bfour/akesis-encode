@@ -57,44 +57,6 @@ app.get('/analyze', async (req, res) => {
   }
 });
 
-app.post('/analyze', async (req, res) => {
-  try {
-    console.log('Request body:', req.body);
-    console.log('Content-Type:', req.headers['content-type']);
-    
-    const { text } = req.body;
-
-    if (!text) {
-      console.log('Text field is missing or empty');
-      return res.status(400).json({ error: 'Text is required' });
-    }
-
-    // Detect medical entities
-    const entitiesCommand = new DetectEntitiesCommand({
-      Text: text,
-    });
-
-    // Detect PHI (Protected Health Information)
-    const phiCommand = new DetectPHICommand({
-      Text: text,
-    });
-
-    // Execute both commands in parallel
-    const [entitiesResponse, phiResponse] = await Promise.all([
-      comprehendMedical.send(entitiesCommand),
-      comprehendMedical.send(phiCommand),
-    ]);
-
-    res.json({
-      entities: entitiesResponse.Entities,
-      phi: phiResponse.Entities,
-    });
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
