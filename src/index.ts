@@ -23,7 +23,7 @@ const comprehendMedical = new ComprehendMedicalClient({
 });
 
 // Routes
-app.get('/analyze', async (req, res) => {
+app.post('/analyze', async (req, res) => {
   try {
     const { text } = req.body;
 
