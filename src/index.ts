@@ -8,10 +8,27 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+const API_KEY = process.env.API_KEY;
+
+if (!API_KEY) {
+  console.error('API_KEY environment variable is not set');
+  process.exit(1);
+}
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Authentication middleware
+const authenticateApiKey = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const apiKey = req.headers['x-api-key'];
+  
+  if (!apiKey || apiKey !== API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid or missing API key' });
+  }
+  
+  next();
+};
 
 // Initialize AWS Medical Comprehend client
 const comprehendMedical = new ComprehendMedicalClient({
@@ -23,7 +40,7 @@ const comprehendMedical = new ComprehendMedicalClient({
 });
 
 // Routes
-app.post('/analyze', async (req, res) => {
+app.post('/analyze', authenticateApiKey, async (req, res) => {
   try {
     const { text } = req.body;
 

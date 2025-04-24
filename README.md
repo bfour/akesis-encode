@@ -15,12 +15,13 @@ A REST API that uses AWS Medical Comprehend to analyze medical text and extract 
    ```bash
    npm install
    ```
-3. Create a `.env` file in the root directory with your AWS credentials:
+3. Create a `.env` file in the root directory with your AWS credentials and API key:
    ```
    AWS_ACCESS_KEY_ID=your_access_key
    AWS_SECRET_ACCESS_KEY=your_secret_key
    AWS_REGION=your_region
    PORT=3000
+   API_KEY=your_api_key
    ```
 
 ## Running the Application
@@ -40,6 +41,12 @@ npm start
 
 ### POST /analyze
 Analyzes medical text and returns detected entities and PHI information.
+
+Headers:
+```
+Content-Type: application/json
+X-API-Key: your_api_key
+```
 
 Request body:
 ```json
