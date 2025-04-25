@@ -83,9 +83,9 @@ app.post('/analyze', authenticateApiKey, async (req, res) => {
             ]);
 
         res.json({
-            entities: entitiesResponse.Entities,
-            phi: phiResponse.Entities,
-            snomed: snomedResponse.Entities,
+            entities: entitiesResponse,
+            phi: phiResponse,
+            snomed: snomedResponse,
         });
     } catch (error) {
         console.error('Error:', error);
